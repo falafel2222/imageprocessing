@@ -11,15 +11,15 @@ Fun with creating intelligent* mosaics out of images
 
 #### Original Image:
 
-![Original Image](/readme_images/original.png)
+![Original Image](/readme_images/original.PNG)
 
 #### Triangled Image:
 
-![Triangled Image](/readme_images/triangled.png)
+![Triangled Image](/readme_images/triangled.PNG)
 
 #### Freeform Image:
 
-![Triangled Image](/readme_images/freeform.png)
+![Triangled Image](/readme_images/freeform.PNG)
 
 
 *The mosaic creation is not actually intelligent. No machine learning of any sort is used.
