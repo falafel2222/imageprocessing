@@ -25,9 +25,9 @@ import svgwrite
 # optimization ideas for later:
 # 	remove points from clump when they are surrounded
 
-IMAGE_NAME = "wallpaper2"
+IMAGE_NAME = "wallpaper4"
 THRESHOLD = 4				# threshold score for adding a point
-WORKING_WIDTH = 1000		#width of the image while getting triangles
+WORKING_WIDTH = 1600		#width of the image while getting triangles
 SCALE_FACTOR = 1			# how many times the image is blown up from its thumbnail size
 CLUMP_DENSITY = .005		# number of clumps per pixel - must be much, much less than 1
 

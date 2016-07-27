@@ -4,8 +4,8 @@ import time
 import random
 import svgwrite
 
-IMAGE_NAME = "wallpaper2"
-THRESHOLD = 1000				# minimum variace that can be split
+IMAGE_NAME = "wallpaper4"
+THRESHOLD = 500				# minimum variace that can be split
 WORKING_WIDTH = 1600			#width of the image while getting triangles
 SCALE_FACTOR = 1			# how many times the image is blown up from its thumbnail size
 MAX_VARIANCE = 99999999 	
