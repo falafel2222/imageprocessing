@@ -51,11 +51,8 @@ class Clump:
 	def expand(self):
 		self.timesExpanding += 1
 
-		# to prevent further expansion from newly added points
-		currentPoints = [point for point in self.borderPoints];
-
 		# go through points and check their neighbors
-		for point in currentPoints:
+		for point in self.borderPoints:
 			pointSurrounded = True
 			for neighbor in getNeighbors(point):
 				if pixelMap.has_key(neighbor):
@@ -91,46 +88,49 @@ def getNeighbors(point):
 	pointList = []
 	for i in [-1,0,1]:
 		for j in [-1,0,1]:
-			if i != j or i != 0:
+			if i != 0 and j != 0:
 				pointList.append( (point[0]+i, point[1] + j) )
 	return pointList
-
 
 
 def difference(point1,point2):
 	return sqrt(sum([(point1[i] - point2[i])**2 for i in range(len(point1))]))
 
-		
+	
 def scale(point,factor):
 	""" returns the point scaled by the factor """
 	return (point[0]*factor,point[1]*factor)
+
 
 def svgScale(point,factor):
 	""" returns the point scaled by the factor """
 	return (str(point[0]*factor)+"px",str(point[1]*factor) + "px")	
 
+
 def rgb(color):
 	return "rgb" + str(color)
 
 
-
-def makeThumbnail(image):
+def makeThumbnail(image, workingWidth):
 	""" makes image into a thumbnail and returns 
 		that thumbnail's width and height as a tuple """
 	bbox = image.getbbox()
 	width = bbox[2]-bbox[0]
 	height = bbox[3]-bbox[1]
 
-	workingHeight = height * WORKING_WIDTH / width
-	size = (WORKING_WIDTH,workingHeight)
-	image.thumbnail(size)
-	return size
+	if workingWidth:
+		workingHeight = height * workingWidth / width
+		size = (workingWidth, workingHeight)
+		image.thumbnail(size)
+		return size
+	else:
+		return (width, height)
 
 
-def main():
+def createImage(imageName, saveName="freeform", clumpDensity=.005, workingWidth=0):
 
-	image =  Image.open("img/" + IMAGE_NAME + ".jpg")
-	workingSize = makeThumbnail(image)
+	image =  Image.open("img/" + imageName)
+	workingSize = makeThumbnail(image, workingWidth)
 	print "Image loaded"
 	
 
@@ -145,7 +145,7 @@ def main():
 	clumpList = []
 	numPoints = workingSize[0]*workingSize[1]
 
-	for i in range(int(CLUMP_DENSITY*numPoints)):
+	for i in range(int(clumpDensity*numPoints)):
 		clumpCenter = (random.randint(0,workingSize[0]-1), random.randint(0,workingSize[1]-1))
 		if pixelMap.has_key(clumpCenter):
 			clumpList.append(Clump(clumpCenter))
@@ -168,7 +168,7 @@ def main():
 
 	print "Pixels Placed in", round(time.time() - startTime,1), "seconds"
 
-	image.save("freeform/" + IMAGE_NAME + ".jpg")
+	image.save("freeform/" + saveName + ".jpg")
 
 if __name__ == "__main__":
 	main()
