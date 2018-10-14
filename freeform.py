@@ -28,7 +28,6 @@ import svgwrite
 IMAGE_NAME = "wallpaper4"
 THRESHOLD = 4				# threshold score for adding a point
 WORKING_WIDTH = 1600		#width of the image while getting triangles
-SCALE_FACTOR = 1			# how many times the image is blown up from its thumbnail size
 CLUMP_DENSITY = .005		# number of clumps per pixel - must be much, much less than 1
 
 
@@ -40,18 +39,22 @@ class Clump:
 	def __init__(self,point):
 		self.center = point
 		self.color = pixelMap[point]
-		self.points = [point]
-		self.borderPoints = [point]
+		self.points = set([point])
+		self.borderPoints = set([point])
 		self.numPoints = 1
 		self.timesExpanding = 0
 
 		# mark point as used
 		del pixelMap[point]
+		clumpMap[point] = self
 
 	def expand(self):
 		self.timesExpanding += 1
 
 		# go through points and check their neighbors
+		surroundedPoints = set()
+		pointsToAdd = set()
+
 		for point in self.borderPoints:
 			pointSurrounded = True
 			for neighbor in getNeighbors(point):
@@ -59,9 +62,14 @@ class Clump:
 					pointSurrounded = False
 					# print self.score(neighbor)
 					if self.score(neighbor) < THRESHOLD:
-						self.addPoint(neighbor)
+						pointsToAdd.add(neighbor)
 			if pointSurrounded:
-				self.borderPoints.remove(point)
+				surroundedPoints.add(point)
+
+		for point in pointsToAdd:
+			self.addPoint(point)
+		for point in surroundedPoints:
+			self.borderPoints.remove(point)
 
 	def addPoint(self, point):
 
@@ -73,15 +81,17 @@ class Clump:
 			newColor[i] /= (self.numPoints + 1) 
 		self.color = tuple(newColor)
 
-		self.points.append(point)
-		self.borderPoints.append(point)
+		self.points.add(point)
+		self.borderPoints.add(point)
 		self.numPoints += 1
 
 		# mark the point as used
 		del pixelMap[point]
+		clumpMap[point] = self
 
 	def score(self, point):
-		return (difference(pixelMap[point],self.color) + 2*difference(point,self.center))/self.timesExpanding
+		return (difference(pixelMap[point], self.color)
+			    + difference(point, self.center)) / self.timesExpanding
 
 
 def getNeighbors(point):
@@ -95,21 +105,6 @@ def getNeighbors(point):
 
 def difference(point1,point2):
 	return sqrt(sum([(point1[i] - point2[i])**2 for i in range(len(point1))]))
-
-	
-def scale(point,factor):
-	""" returns the point scaled by the factor """
-	return (point[0]*factor,point[1]*factor)
-
-
-def svgScale(point,factor):
-	""" returns the point scaled by the factor """
-	return (str(point[0]*factor)+"px",str(point[1]*factor) + "px")	
-
-
-def rgb(color):
-	return "rgb" + str(color)
-
 
 def makeThumbnail(image, workingWidth):
 	""" makes image into a thumbnail and returns 
@@ -169,6 +164,10 @@ def createImage(imageName, saveName="freeform", clumpDensity=.005, workingWidth=
 	print "Pixels Placed in", round(time.time() - startTime,1), "seconds"
 
 	image.save("freeform/" + saveName + ".jpg")
+
+
+def main():
+	createImage('connor.jpg', saveName='connor', workingWidth=600)
 
 if __name__ == "__main__":
 	main()
