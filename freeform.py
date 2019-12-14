@@ -1,5 +1,5 @@
-from math import sqrt
 from PIL import Image
+import numpy as np
 import time
 import random
 import svgwrite
@@ -33,6 +33,7 @@ CLUMP_DENSITY = .005		# number of clumps per pixel - must be much, much less tha
 
 # dictionary matching points to pixel colors
 pixelMap = {}
+clumpMap = {}
 
 
 class Clump:
@@ -74,12 +75,8 @@ class Clump:
 	def addPoint(self, point):
 
 		# update the average color
-		pointColor = pixelMap[point]
-		newColor = [0,0,0]
-		for i in [0,1,2]:
-			newColor[i] = self.color[i]*self.numPoints + pointColor[i]
-			newColor[i] /= (self.numPoints + 1) 
-		self.color = tuple(newColor)
+		self.color = (self.color * self.numPoints
+					  + pixelMap[point]) /(self.numPoints + 1)
 
 		self.points.add(point)
 		self.borderPoints.add(point)
@@ -104,7 +101,7 @@ def getNeighbors(point):
 
 
 def difference(point1,point2):
-	return sqrt(sum([(point1[i] - point2[i])**2 for i in range(len(point1))]))
+	return np.sqrt(sum([(point1[i] - point2[i])**2 for i in range(len(point1))]))
 
 def makeThumbnail(image, workingWidth):
 	""" makes image into a thumbnail and returns 
@@ -133,7 +130,7 @@ def createImage(imageName, saveName="freeform", clumpDensity=.005, workingWidth=
 	points = []
 	for x in range(workingSize[0]):
 		for y in range(workingSize[1]):
-			pixelMap[(x,y)] = image.getpixel((x,y))
+			pixelMap[(x,y)] = np.asarray(image.getpixel((x, y)))
 	
 	print "pixels analyzed"
 
